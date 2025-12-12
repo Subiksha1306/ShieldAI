@@ -1,31 +1,22 @@
+# Use lightweight Python image
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
+# Copy project files
 COPY . /app
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN ls -R /app
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Expose port
 EXPOSE 8000
 
-CMD python - << 'EOF'
-import os, sys, pkgutil
-print(">>> DEBUG: Starting container")
-print(">>> Working directory:", os.getcwd())
-print(">>> Files in /app:", os.listdir("/app"))
-print(">>> Python path:", sys.path)
-
-try:
-    import main
-    print(">>> main.py import SUCCESS")
-except Exception as e:
-    print(">>> main.py import FAILED:", e)
-    raise
-
-import uvicorn
-uvicorn.run("main:app", host="0.0.0.0", port=8000)
-EOF
-
+# Start FastAPI with Uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
