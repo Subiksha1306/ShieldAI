@@ -1,18 +1,18 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.routers import text_router, image_router, multi_router
+from app.routers.text_routes import router as text_router
+from app.routers.image_routes import router as image_router
+from app.routers.multi_routes import router as multi_router
 
-app = FastAPI(title="ShieldAI – Multimodal Detection System")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+app = FastAPI(
+    title="ShieldAI Backend",
+    version="1.0"
 )
 
-app.include_router(text_router)
-app.include_router(image_router)
-app.include_router(multi_router)
+app.include_router(text_router, prefix="/text")
+app.include_router(image_router, prefix="/image")
+app.include_router(multi_router, prefix="/multi")
 
 @app.get("/")
-def root():
+def home():
     return {"status": "running", "message": "ShieldAI Backend Active"}
+
